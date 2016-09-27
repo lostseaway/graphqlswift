@@ -13,24 +13,37 @@ class GraphQLConnectorTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testSimpleQuery() {
+        XCTAssertEqual(Person.createQuery(), htmlEncode(str: "{Person{name age}}"))
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    func testQueryWithParam() {
+        XCTAssertEqual(Person.createQuery(className: nil, param: ["name":"Dream"]), htmlEncode(str: "{Person(name:\"Dream\"){name age}}"))
     }
     
+    func testNestedQuery() {
+        let query = Car.createQuery(className: nil, param: ["brand":"Honda"])
+        XCTAssertEqual(query, htmlEncode(str: "{Car(brand:\"Honda\"){color brand owner{name age}}}"))
+    }
+    
+    func testBundleQuery() {
+        XCTAssertEqual([Person].createQuery(bundleName: "allpeople"), htmlEncode(str: "{allpeople{Person{name age}}}"))
+    }
+    
+    private func htmlEncode(str: String) -> String {
+        return str.addingPercentEncoding(withAllowedCharacters: .urlUserAllowed)!
+    }
+    
+}
+
+private extension Client {
+    struct TestRequst: RequestConstructable  {
+        var baseURL: URL = URL(string: base)!
+    }
 }

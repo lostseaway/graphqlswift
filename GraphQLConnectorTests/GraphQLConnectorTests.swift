@@ -10,7 +10,6 @@ import XCTest
 @testable import GraphQLConnector
 
 class GraphQLConnectorTests: XCTestCase {
-    
     override func setUp() {
         super.setUp()
     }
@@ -20,30 +19,38 @@ class GraphQLConnectorTests: XCTestCase {
     }
     
     func testSimpleQuery() {
-        XCTAssertEqual(Person.createQuery(), htmlEncode(str: "{Person{name age}}"))
+        XCTAssertEqual(Person.createQuery(), "{Person{name age}}")
     }
     
     func testQueryWithParam() {
-        XCTAssertEqual(Person.createQuery(className: nil, param: ["name":"Dream"]), htmlEncode(str: "{Person(name:\"Dream\"){name age}}"))
+        XCTAssertEqual(Person.createQuery(param: ["name":"Dream"]), "{Person(name:\"Dream\"){name age}}")
     }
     
     func testNestedQuery() {
-        let query = Car.createQuery(className: nil, param: ["brand":"Honda"])
-        XCTAssertEqual(query, htmlEncode(str: "{Car(brand:\"Honda\"){color brand owner{name age}}}"))
+        let query = Car.createQuery(param: ["brand":"Honda"])
+        XCTAssertEqual(query, "{Car(brand:\"Honda\"){color brand Person{name age}}}")
     }
     
     func testBundleQuery() {
-        XCTAssertEqual([Person].createQuery(bundleName: "allpeople"), htmlEncode(str: "{allpeople{Person{name age}}}"))
+        XCTAssertEqual([Person].createQuery(bundleName: "allpeople"), "{allpeople{Person{name age}}}")
     }
     
-    private func htmlEncode(str: String) -> String {
-        return str.addingPercentEncoding(withAllowedCharacters: .urlUserAllowed)!
+    func testBundleQueryWithParam() {
+        XCTAssertEqual([Person].createQuery(bundleName: "allpeople", param: ["from":"1"]) , "{allpeople(from:\"1\"){Person{name age}}}")
     }
     
+    func testClassName() {
+        XCTAssertEqual(Hero.createQuery(), "{person{id name}}")
+    }
+    
+    func testClassNameBundle() {
+        XCTAssertEqual([Hero].createQuery(bundleName: "allpeople"),"{allpeople{person{id name}}}")
+    }
+    
+    func testClassNameBundleWithParam() {
+        XCTAssertEqual([Hero].createQuery(bundleName: "allpeople",param: ["from":"1"]), "{allpeople(from:\"1\"){person{id name}}}")
+    }
+
 }
 
-private extension Client {
-    struct TestRequst: RequestConstructable  {
-        var baseURL: URL = URL(string: base)!
-    }
-}
+

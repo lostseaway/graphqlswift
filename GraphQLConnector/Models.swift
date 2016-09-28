@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Gloss
+
 struct Person: GraphQLObject {
     var name: String
     var age: Int
@@ -24,6 +26,22 @@ struct Car: GraphQLObject {
         color = ""
         brand = ""
         owner = Person()
+    }
+}
+
+struct Hero:GraphQLObject,Decodable {
+    var className: String? = "people"
+    let id: String
+    let name: String
+    
+    init() {
+        id = ""
+        name = ""
+    }
+    
+    init?(json: JSON) {
+        self.id = ("id" <~~ json)!
+        self.name = ("name" <~~ json)!
     }
 }
 

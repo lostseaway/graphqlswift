@@ -1,12 +1,14 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '9.0'
 
 target 'GraphQLConnector' do
   # Comment this line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
-  pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git'
-  # Pods for GraphQLConnector
 
+  pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git'
+  pod 'Alamofire', '~> 4.0'
+  pod 'Gloss', '~> 1.0'
+  
   target 'GraphQLConnectorTests' do
     inherit! :search_paths
     # Pods for testing

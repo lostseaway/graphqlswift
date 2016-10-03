@@ -8,74 +8,39 @@
 
 import Foundation
 
-protocol GraphQLObject {
-    init()
-    func toGraphQL() -> String
-    var className: String? { get }
+protocol Query {
+    func serialized() -> String
 }
 
-extension GraphQLObject {
-    var className: String? { return nil }
-    static func createQuery(param : [String:String]? = nil) -> String {
-        let model = self.init()
-        if param == nil {
-            return "{\(model.toGraphQL())}"
-        }
-        let strParam = generateParam(param: param!)
-        return "{\(model.getClassName())(\(strParam)){\(model.getAllProperties().joined(separator: " "))}}"
-    }
+protocol Field: Query {
     
+}
+
+protocol Argument: Query {
     
-    private static func generateParam(param: [String:String]) -> String {
-        var out = [String]()
-        param.forEach{ key , value in
-            out.append("\(key):\"\(value)\"")
-        }
-        return out.joined(separator: ",")
-    }
-    
-    func toGraphQL(className:String) -> String {
-        return "\(className){\(getAllProperties().joined(separator: " "))}"
-    }
-    
-    func toGraphQL() -> String {
-        return "\(getClassName()){\(getAllProperties().joined(separator: " "))}"
-    }
-    
-    private func getClassName() -> String {
-        return className == nil ? "\(Mirror(reflecting: self).subjectType)" : className!
-    }
-    
-    private func getAllProperties() -> [String] {
-        var properties = [String]()
-        Mirror(reflecting: self).children.forEach({ property in
-            if property.value is GraphQLObject {
-                let tmp = (property.value) as! GraphQLObject
-                properties.append(tmp.toGraphQL())
-            } else if property.label! != "className" {
-                properties.append(property.label!)
-            }
-        })
-        return properties
+}
+
+extension Argument {
+    func createArgument(key: String, value: String) -> String {
+        return "\(key):\"\(value)\""
     }
 }
 
-extension Array where Element: GraphQLObject {
-    static func createQuery(bundleName: String,param : [String:String]? = nil) -> String {
-        let model = Element.init()
-        if param == nil {
-            return "{\(bundleName){\(model.toGraphQL())}}"
-        }
-        
-        let strParam = generateParam(param: param!)
-        return "{\(bundleName)(\(strParam)){\(model.toGraphQL())}}"
-    }
+protocol QueryObject: Query {
+    associatedtype FieldType: Field
+    associatedtype ArgumentType: Argument
     
-    private static func generateParam(param: [String:String]) -> String {
-        var out = [String]()
-        param.forEach{ key , value in
-            out.append("\(key):\"\(value)\"")
+    var label: String { get }
+    var fields: [FieldType] { get }
+    var arguments: [ArgumentType]? { get }
+}
+
+extension QueryObject {
+    func serialized() -> String {
+        if arguments == nil {
+            return "\(label) {\(fields.map({ $0.serialized() }).joined(separator: " "))}"
         }
-        return out.joined(separator: ",")
+
+        return "\(label)(\(arguments!.map({"\($0.serialized())"}).joined(separator: ","))) {\(fields.map({ $0.serialized() }).joined(separator: " "))}"
     }
 }

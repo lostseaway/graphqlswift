@@ -10,9 +10,8 @@ import Gloss
 import RxSwift
 
 class MainTableViewModel {
-    //var data = [Hero]()
-    var data = [Hero]()
-    lazy var dataVariable: Variable<[Hero]> = {
+    var data = [People]()
+    lazy var dataVariable: Variable<[People]> = {
         return Variable(self.data)
     }()
     
@@ -25,12 +24,14 @@ class MainTableViewModel {
         }).addDisposableTo(disposeBag)
     }
     
-    func loadData() -> Observable<[Hero]>{
-        return Client.requestObserve(query: [Hero].createQuery(bundleName: "allPeople", param: nil)).map({ response -> [Hero] in
-                let data:JSON = ("data" <~~ response)!
-                let allPeople:JSON = ("allPeople" <~~ data)!
-                let people:[JSON] = ("people" <~~ allPeople)!
-                return [Hero].from(jsonArray: people)!
-            })
+    func loadData() -> Observable<[People]>{
+        let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: nil)
+        let allQuery = AllPeopleQuery(label: "allPeople", fields: [.people(peopleQuery)], arguments: nil)
+        return Client.requestObserve(query: "{\(allQuery.serialized())}").map({ response -> [People] in
+            let data:JSON = ("data" <~~ response)!
+            let allPeople:JSON = ("allPeople" <~~ data)!
+            let people:[JSON] = ("people" <~~ allPeople)!
+            return [People].from(jsonArray: people)!
+        })
     }
 }

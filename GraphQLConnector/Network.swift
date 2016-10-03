@@ -4,7 +4,7 @@ import RxSwift
 import Gloss
 
 struct Client {
-    static let base = "http://graphql-swapi.parseapp.com"
+    static let base = "http://localhost:50957"
 }
 
 extension Client {

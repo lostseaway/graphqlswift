@@ -19,36 +19,19 @@ class GraphQLConnectorTests: XCTestCase {
     }
     
     func testSimpleQuery() {
-        XCTAssertEqual(Person.createQuery(), "{Person{name age}}")
+        let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: nil)
+        XCTAssertEqual("{\(peopleQuery.serialized())}" , "{people {id name}}")
     }
     
     func testQueryWithParam() {
-        XCTAssertEqual(Person.createQuery(param: ["name":"Dream"]), "{Person(name:\"Dream\"){name age}}")
+        let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: [.id("1")])
+        XCTAssertEqual("{\(peopleQuery.serialized())}", "{people(id:\"1\") {id name}}")
     }
     
     func testNestedQuery() {
-        let query = Car.createQuery(param: ["brand":"Honda"])
-        XCTAssertEqual(query, "{Car(brand:\"Honda\"){color brand Person{name age}}}")
-    }
-    
-    func testBundleQuery() {
-        XCTAssertEqual([Person].createQuery(bundleName: "allpeople"), "{allpeople{Person{name age}}}")
-    }
-    
-    func testBundleQueryWithParam() {
-        XCTAssertEqual([Person].createQuery(bundleName: "allpeople", param: ["from":"1"]) , "{allpeople(from:\"1\"){Person{name age}}}")
-    }
-    
-    func testClassName() {
-        XCTAssertEqual(Hero.createQuery(), "{person{id name}}")
-    }
-    
-    func testClassNameBundle() {
-        XCTAssertEqual([Hero].createQuery(bundleName: "allpeople"),"{allpeople{person{id name}}}")
-    }
-    
-    func testClassNameBundleWithParam() {
-        XCTAssertEqual([Hero].createQuery(bundleName: "allpeople",param: ["from":"1"]), "{allpeople(from:\"1\"){person{id name}}}")
+        let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: nil)
+        let allQuery = AllPeopleQuery(label: "allPeople", fields: [.people(peopleQuery)], arguments: nil)
+        XCTAssertEqual("{\(allQuery.serialized())}", "{allPeople {people {id name}}}")
     }
 
 }

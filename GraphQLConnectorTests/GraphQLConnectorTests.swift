@@ -33,6 +33,12 @@ class GraphQLConnectorTests: XCTestCase {
         let allQuery = AllPeopleQuery(label: "allPeople", fields: [.people(peopleQuery)], arguments: nil)
         XCTAssertEqual("{\(allQuery.serialized())}", "{allPeople {people {id name}}}")
     }
+    
+    func testNestedQueryWithParam() {
+        let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: [.id("1")])
+        let allQuery = AllPeopleQuery(label: "allPeople", fields: [.people(peopleQuery)], arguments: [.first(1)])
+        XCTAssertEqual("{\(allQuery.serialized())}", "{allPeople(first:\"1\") {people(id:\"1\") {id name}}}")
+    }
 
 }
 

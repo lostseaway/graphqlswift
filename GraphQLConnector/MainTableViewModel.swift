@@ -11,6 +11,7 @@ import RxSwift
 
 class MainTableViewModel {
     var data = [People]()
+    var client = Client()
     lazy var dataVariable: Variable<[People]> = {
         return Variable(self.data)
     }()
@@ -27,11 +28,8 @@ class MainTableViewModel {
     func loadData() -> Observable<[People]>{
         let peopleQuery = PeopleQuery(label: "people", fields: [.id,.name], arguments: nil)
         let allQuery = AllPeopleQuery(label: "allPeople", fields: [.people(peopleQuery)], arguments: nil)
-        return Client.requestObserve(query: "{\(allQuery.serialized())}").map({ response -> [People] in
-            let data:JSON = ("data" <~~ response)!
-            let allPeople:JSON = ("allPeople" <~~ data)!
-            let people:[JSON] = ("people" <~~ allPeople)!
-            return [People].from(jsonArray: people)!
-        })
+        return PeopleRequest(connector: client.connector, query: "{\(allQuery.serialized())}").call()
     }
 }
+
+

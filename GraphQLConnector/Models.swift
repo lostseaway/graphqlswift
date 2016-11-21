@@ -8,6 +8,7 @@
 
 import Foundation
 import Gloss
+import RxSwift
 
 enum PeopleArgument: Argument {
     case id(String), personID(String)
@@ -93,5 +94,27 @@ struct AllPeopleQuery: QueryObject {
     var label: String = "allPeople"
     var fields: [AllPeopleField]
     var arguments: [AllPeopleArgument]?
+}
+
+struct PeopleRequest: BaseRequest {
+    
+    var baseURL: String = Client.base
+    var connector: BaseRESTConnector
+    var parameters: [String : Any]?
+    
+    init(connector: BaseRESTConnector, query: String) {
+        self.connector = connector
+        self.parameters = ["query":query]
+    }
+    
+    func call() -> Observable<[People]> {
+        return connector.request(baseURL, path: path, method: method, parameters: parameters, headers: nil).map {
+            response in
+            let data:JSON = ("data" <~~ response)!
+            let allPeople:JSON = ("allPeople" <~~ data)!
+            let people:[JSON] = ("people" <~~ allPeople)!
+            return [People].from(jsonArray: people)!
+        }
+    }
 }
 

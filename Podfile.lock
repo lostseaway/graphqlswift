@@ -1,0 +1,27 @@
+PODS:
+  - Alamofire (4.0.1)
+  - Gloss (1.0.0)
+  - RxSwift (3.0.0-beta.1)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.0)
+  - Gloss (~> 1.0)
+  - RxSwift (from `https://github.com/ReactiveX/RxSwift.git`)
+
+EXTERNAL SOURCES:
+  RxSwift:
+    :git: https://github.com/ReactiveX/RxSwift.git
+
+CHECKOUT OPTIONS:
+  RxSwift:
+    :commit: 3289dbc1d3f0d31099cebe4bfed55c01dc678682
+    :git: https://github.com/ReactiveX/RxSwift.git
+
+SPEC CHECKSUMS:
+  Alamofire: 7682d43245de14874acd142ec137b144aa1dd335
+  Gloss: 014789e9e69ca18f127eacca999f4c9b0bff6d58
+  RxSwift: 0823e8d7969c23bfa9ddfb2afa4881e424a1a710
+
+PODFILE CHECKSUM: b824b12ef196fe8ee9ba621a2530eb84a4e80d1b
+
+COCOAPODS: 1.0.1
